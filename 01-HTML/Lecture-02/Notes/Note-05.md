@@ -1,200 +1,111 @@
-## Big picture first (mental model)
+# 16. HTML Entities & Special Characters
 
-HTML media works like this:
+## 1. Character Entities
 
-- `<audio>` / `<video>` → **the player**
-- `<source>` → **where the media comes from**
-- `<track>` → **extra data layered on top (captions, subtitles, metadata)**
+HTML entities are special sequences used to display characters that have special meaning in HTML or are difficult to type directly.
 
-Think: **container → sources → annotations**.
+Two formats are commonly used:
 
----
+- Named entity: `&name;`
+- Numeric entity: `&#number;` or `&#xhex;`
 
-## 1. Audio element (`<audio>`)
+Examples:
 
-### What it is
-
-Embeds **sound** into the page with native playback controls.
-
-### Basic example
-
-```html
-<audio controls>
-  <source src="music.mp3" type="audio/mpeg" />
-  Your browser does not support audio.
-</audio>
+```
+&lt;       <!-- < -->
+&gt;       <!-- > -->
+&amp;      <!-- & -->
+&copy;     <!-- © -->
+&#169;     <!-- © -->
+&#xA9;     <!-- © -->
 ```
 
-### Key attributes
+## 2. Reserved Characters
 
-- `controls` → play/pause UI
-- `autoplay` → starts automatically (often blocked)
-- `loop` → repeats
-- `muted` → starts silent
-- `preload` → metadata | auto | none
+Some characters have special meanings in HTML syntax. Entities allow you to display them as ordinary text.
 
-### When to use
+| Character | Entity   | Display |
+| --------- | -------- | ------- |
+| `<`       | `&lt;`   | <       |
+| `>`       | `&gt;`   | >       |
+| `&`       | `&amp;`  | &       |
+| `"`       | `&quot;` | "       |
+| `'`       | `&apos;` | '       |
 
-- Music
-- Podcasts
-- Voice notes
-- Sound effects
+Example:
 
----
-
-## 2. Video element (`<video>`)
-
-### What it is
-
-Embeds **video + audio + visuals**.
-
-### Basic example
-
-```html
-<video controls width="400">
-  <source src="movie.mp4" type="video/mp4" />
-  Your browser does not support video.
-</video>
+```
+<p>5 &lt; 10</p>
+<p>Tom &amp; Jerry</p>
 ```
 
-### Key attributes
+Output:
 
-- `controls`
-- `width` / `height`
-- `poster` → thumbnail image
-- `autoplay` (usually requires `muted`)
-- `loop`
+5 < 10
 
-### When to use
+Tom & Jerry
 
-- Tutorials
-- Demos
-- Product videos
-- Media playback without external players
+Note: In ordinary HTML text, `<` and `&` are especially important to escape. Quotes also need escaping in certain attribute contexts.
 
----
+## 3. Symbols and Icons
 
-## 3. Source element (`<source>`)
+HTML entities can display symbols without requiring you to type the actual character.
 
-### What it is
+| Symbol | Entity     | Meaning              |
+| ------ | ---------- | -------------------- |
+| ©      | `&copy;`   | Copyright            |
+| ®      | `&reg;`    | Registered trademark |
+| ™      | `&trade;`  | Trademark            |
+| €      | `&euro;`   | Euro                 |
+| ₹      | `&#8377;`  | Indian rupee         |
+| →      | `&rarr;`   | Right arrow          |
+| ✓      | `&#10003;` | Check mark           |
+| ♥      | `&hearts;` | Heart                |
 
-Defines **multiple media formats** so the browser can choose the one it supports.
+Example:
 
-### Why it exists
-
-Different browsers support different codecs.
-
-### Example with fallback
-
-```html
-<video controls>
-  <source src="video.webm" type="video/webm" />
-  <source src="video.mp4" type="video/mp4" />
-  Your browser does not support video.
-</video>
+```
+<p>Copyright &copy; 2026</p>
+<p>Price: &#8377;500</p>
+<p>Continue &rarr;</p>
 ```
 
-### How the browser behaves
+Note: You can also use many symbols directly in HTML if your document uses UTF-8 encoding.
 
-- Tries sources **top to bottom**
-- Plays the **first supported format**
+## 4. Unicode Characters
 
-### Important rule
+Unicode is a universal character-encoding standard that assigns a unique code point to characters from different languages, scripts, and symbol sets.
 
-`<source>` is **meaningless alone**.
-It must live inside `<audio>` or `<video>`.
+Examples:
 
----
+| Character | Unicode code point |
+| --------- | ------------------ |
+| A         | `U+0041`           |
+| ₹         | `U+20B9`           |
+| ©         | `U+00A9`           |
+| 😀        | `U+1F600`          |
 
-## 4. Track element (`<track>`)
+Use UTF-8 encoding in HTML:
 
-### What it is
-
-Adds **time-based text** to media:
-
-- Captions
-- Subtitles
-- Descriptions
-- Chapters
-
-### Accessibility-critical element
-
-### Example with captions
-
-```html
-<video controls>
-  <source src="lecture.mp4" type="video/mp4" />
-  <track
-    src="captions.vtt"
-    kind="subtitles"
-    srclang="en"
-    label="English"
-    default
-  />
-</video>
+```
+<head>
+  <meta charset="UTF-8" />
+</head>
 ```
 
-### Key attributes
+You can insert Unicode characters using numeric HTML references:
 
-- `kind` → subtitles | captions | descriptions | chapters | metadata
-- `srclang` → language code
-- `label` → user-facing name
-- `default` → enabled by default
-
-### File format
-
-Uses **WebVTT (`.vtt`)**:
-
-```text
-00:00:01.000 --> 00:00:04.000
-Welcome to the course.
+```
+<p>&#8377;500</p>
+<p>&#128512;</p>
 ```
 
----
+Output: ₹500 and 😀
 
-## How all four work together (full example)
+### Important distinction
 
-```html
-<video controls poster="thumb.jpg">
-  <source src="video.webm" type="video/webm" />
-  <source src="video.mp4" type="video/mp4" />
+- Unicode defines character code points.
+- UTF-8 is an encoding used to represent Unicode characters as bytes.
+- HTML entities are a way to represent characters in HTML source code.
 
-  <track
-    src="sub-en.vtt"
-    kind="subtitles"
-    srclang="en"
-    label="English"
-    default
-  />
-  <track src="sub-hi.vtt" kind="subtitles" srclang="hi" label="Hindi" />
-
-  Your browser does not support video.
-</video>
-```
-
-This gives:
-
-- Player UI
-- Multiple formats
-- Multiple languages
-- Accessibility support
-- Graceful fallback
-
----
-
-## Decision table (quick recall)
-
-| Element    | Role                            |
-| ---------- | ------------------------------- |
-| `<audio>`  | Sound player                    |
-| `<video>`  | Visual + sound player           |
-| `<source>` | Media file options              |
-| `<track>`  | Captions / subtitles / metadata |
-
----
-
-## One-line takeaway
-
-`<audio>` and `<video>` **play media**,
-`<source>` **feeds them options**,
-`<track>` **makes them understandable to humans and machines**.
+Practical rule: Use UTF-8 for modern HTML documents, write ordinary characters directly when possible, and use entities when you need to represent reserved characters or prefer a readable named reference.
